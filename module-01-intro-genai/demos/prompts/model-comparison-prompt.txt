@@ -1,0 +1,1 @@
+Write a small C# method that takes a list of strings and returns a dictionary of string → length, using only the .NET standard library. Prefer C# 12 / .NET 8 style if applicable.

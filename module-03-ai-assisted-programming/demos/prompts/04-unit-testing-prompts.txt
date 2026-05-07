@@ -1,0 +1,28 @@
+# Demo 4: Unit Testing - Prompts
+
+## Prompt 1: Generate Basic Tests
+Generate JUnit 5 and Mockito tests for this service method. Cover the happy path, null input, and empty list scenarios. Use Java 17.
+
+```java
+@Service
+public class BookService {
+    private final BookRepository repository;
+    
+    public BookService(BookRepository repository) {
+        this.repository = repository;
+    }
+    
+    public List<Book> findBooksByAuthor(String author) {
+        if (author == null || author.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return repository.findByAuthorContainingIgnoreCase(author);
+    }
+}
+```
+
+## Prompt 2: Fix Tests (if needed)
+Fix the test for empty string input. The service should return an empty list when author is null or empty. Update the mock setup accordingly.
+
+## Prompt 3: Add Edge Cases
+Add tests for edge cases: author with only whitespace, author not found (empty result), and repository throws exception.

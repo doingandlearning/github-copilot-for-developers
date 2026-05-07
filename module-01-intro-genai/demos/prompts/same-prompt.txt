@@ -1,0 +1,1 @@
+In one short paragraph, explain the difference between [FromBody] and [FromQuery] in ASP.NET Core. We use ASP.NET Core 8 and C# 12.

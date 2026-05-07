@@ -1,0 +1,10 @@
+# Use one of these for the hallucination-check demo (synthetic only).
+
+# Option A — possibly non-existent version
+Summarise the breaking changes in ASP.NET Core 9.0.
+
+# Option B — precise API (easy to get wrong)
+What's the exact signature of IActionResult Ok() in ASP.NET Core 8?
+
+# Option C — mixed/outdated details
+How do I use the [ResponseCache] attribute with Redis in ASP.NET Core 8? Give the exact NuGet package and one example.

@@ -1,0 +1,10 @@
+# Three prompts: vague → clear → constrained
+
+## Prompt 1: Vague
+Write some code for ASP.NET Core
+
+## Prompt 2: Clear
+Generate an ASP.NET Core REST controller with one GET endpoint that returns a list of users
+
+## Prompt 3: Clear + Context + Constraints
+Generate an ASP.NET Core 8 REST controller using C# 12. Use constructor injection, return IActionResult wrapping List<User>, and include proper error handling. Don't return null — return an appropriate HTTP status code instead.

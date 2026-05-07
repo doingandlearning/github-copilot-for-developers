@@ -1,0 +1,16 @@
+# Demo 1: Spring Boot Generation - Prompts
+
+## Prompt 1: Generate Entity
+Generate a Spring Boot 3 JPA entity for a Book with the following fields:
+- id: Long, primary key, auto-generated
+- title: String, required
+- author: String, required
+- isbn: String, unique, required
+- publishedYear: Integer
+Use Java 17 and include proper JPA annotations.
+
+## Prompt 2: Add Repository and Service
+Now generate a JPA repository interface for this Book entity, and a service class with a method to find all books. Use constructor injection, not @Autowired. Return ResponseEntity<List<Book>>.
+
+## Prompt 3: Refine for Team Style
+Update the service method to not use Optional for return types. Use ResponseEntity with proper HTTP status codes. Include error handling for empty results.

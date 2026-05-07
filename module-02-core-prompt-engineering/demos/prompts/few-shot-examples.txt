@@ -1,0 +1,27 @@
+# Few-shot examples
+
+## Zero-shot (no examples)
+Generate an ASP.NET Core REST controller for Product
+
+## Few-shot (with example)
+Generate a controller like this:
+```csharp
+[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+    private readonly IProductService _service;
+
+    public ProductsController(IProductService service)
+    {
+        _service = service;
+    }
+
+    [HttpGet]
+    public IActionResult GetAll()
+    {
+        return Ok(_service.GetAll());
+    }
+}
+```
+Now generate another one for User.
