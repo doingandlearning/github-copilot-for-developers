@@ -4,6 +4,8 @@
 
 ---
 
+![QR Code for this page](qr-code.png)
+
 ## What this course is
 
 This course is for developers who are already using AI tools - or about to - and want to get consistent, production-quality results from them. It is not an introduction to what AI is. It is a practical course in how to work with it well.
