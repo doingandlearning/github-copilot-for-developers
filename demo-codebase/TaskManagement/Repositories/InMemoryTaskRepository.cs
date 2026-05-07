@@ -23,7 +23,7 @@ public class InMemoryTaskRepository : ITaskRepository
         if (priority.HasValue)
             query = query.Where(t => t.Priority == priority.Value);
 
-        return Task.FromResult(query.OrderByDescending(t => t.CreatedAt));
+        return Task.FromResult<IEnumerable<TaskItem>>(query.OrderByDescending(t => t.CreatedAt));
     }
 
     public Task<TaskItem> SaveAsync(TaskItem task)
@@ -47,6 +47,10 @@ public class InMemoryTaskRepository : ITaskRepository
     // Good demo: ask Copilot inline to complete this
     public Task<bool> DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        var task = _tasks.FirstOrDefault(t => t.Id == id);
+        if (task is null) return Task.FromResult(false);
+
+        _tasks.Remove(task);
+        return Task.FromResult(true);
     }
 }

@@ -66,8 +66,6 @@ public class TaskService : ITaskService
         return task is null ? null : MapToResponse(task);
     }
 
-    // NOTE FOR DEMO: This method has a bug — it doesn't set CompletedAt when
-    // status changes to Done. Good candidate for: /fix, or ask delegates to spot it
     public async Task<TaskResponse?> UpdateAsync(int id, UpdateTaskRequest request)
     {
         var existing = await _repository.GetByIdAsync(id);
@@ -92,11 +90,21 @@ public class TaskService : ITaskService
 
         if (request.Status is not null)
         {
-            if (!Enum.TryParse<Models.TaskStatus>(request.Status, ignoreCase: true, out var status))
+            if (!Enum.TryParse<TaskManagement.Models.TaskStatus>(request.Status, ignoreCase: true, out var status))
                 throw new ArgumentException($"Invalid status: {request.Status}");
 
-            // BUG: CompletedAt should be set here when status == Done
+            var previousStatus = existing.Status;
             existing.Status = status;
+
+            // Keep completion timestamp consistent with Done status.
+            if (previousStatus != TaskManagement.Models.TaskStatus.Done && status == TaskManagement.Models.TaskStatus.Done)
+            {
+                existing.CompletedAt ??= DateTime.UtcNow;
+            }
+            else if (previousStatus == TaskManagement.Models.TaskStatus.Done && status != TaskManagement.Models.TaskStatus.Done)
+            {
+                existing.CompletedAt = null;
+            }
         }
 
         var updated = await _repository.UpdateAsync(existing);
