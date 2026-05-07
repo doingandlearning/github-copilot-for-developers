@@ -1,4 +1,4 @@
-# Prompt Engineering for Developers
+# Github Copilot for Developers
 
 **A one-day, in-person course for software development teams using GitHub Copilot for Business.**
 
