@@ -186,6 +186,8 @@ Add 1–2 examples to guide style.
 >
 > Now generate another one for User."
 
+---
+
 **When to use:**
 
 - ✅ When you want specific style
