@@ -34,25 +34,17 @@ By the end of the day, delegates will be able to:
 
 ### Module 1 — Introduction to GenAI for Developers
 
-**~60 minutes**
-
 How LLMs work, where they fail, and how to use them safely. Covers the distinction between public AI tools and enterprise instances, the hallucination problem and how to catch it, and a practical framework for deciding when to trust AI output and when not to.
 
 ### Module 2 — Core Prompt Engineering Principles
-
-**~75 minutes including lab**
 
 The fundamentals of writing prompts that work. Clarity, context, and constraints as a framework. Zero-shot vs. few-shot prompting. Chain-of-thought for accuracy. Iterative refinement — how to read bad output and adjust the prompt rather than starting again.
 
 ### Module 3 — AI-Assisted .NET/C# Development
 
-**~90–120 minutes**
-
 The anchor module. Generating boilerplate, entities, service layers, and DTOs. Using AI to explain and modernise legacy code. Refactoring strategies. Generating xUnit/Moq test suites with meaningful coverage. How to review AI output before applying it.
 
 ### Module 4 — Three Ways to Work with AI
-
-**~100 minutes including exercises**
 
 A practical framework for the three modes of working with Copilot:
 
