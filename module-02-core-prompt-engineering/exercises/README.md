@@ -1,295 +1,153 @@
 # Module 2 — Exercises
 
-**For delegates.** Complete these during or after the Module 2 session. You can do them on your own or in pairs.
+**For delegates.** These exercises run during the Module 2 session. Your facilitator will manage timing and breakout rooms.
 
 ---
 
 ## Objective
 
-By completing these exercises, you will:
+By the end of these exercises you will be able to:
 
-- Practice writing clear, contextual, and constrained prompts
-- Apply zero-shot, few-shot, and chain-of-thought techniques
-- Iteratively refine prompts based on output
-- Build confidence in prompting as a skill
+- Diagnose what's wrong with a prompt that produces poor output
+- Apply the three Cs to produce output that's actually usable
+- Choose the right prompting technique for the task
+- Give and receive specific, actionable feedback on a prompt
 
 ---
 
 ## Scenario
 
-You're working on an ASP.NET Core application and need to use AI to help with various coding tasks. These exercises will help you practice the prompting techniques from Module 2.
+You're a C# developer on an ASP.NET Core 8 project. A new team member has been using AI to help with coding tasks but keeps getting output that doesn't match the team's codebase or style. Your job in these exercises is to fix their prompts — and then have yours fixed in return.
 
-**Remember:** Use only synthetic examples or generic ASP.NET Core patterns. Don't paste proprietary code or internal APIs.
-
----
-
-## Exercise 1: Craft an effective prompt
-
-**Your task:**
-
-Write a prompt to ask AI to explain what this regex does:
-
-```csharp
-@"^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
-```
-
-**Requirements:**
-
-- Use clarity: What do you want? (explain)
-- Use context: What does the model need to know? (it's a regex pattern)
-- Use constraints: Any rules? (explain in simple terms, give an example)
-
-**Hints:**
-
-- Start with the task: "Explain..."
-- Add context: "This is a C# regex pattern..."
-- Add constraints: "Explain in simple terms and give one example of a matching string"
-
-**Then:** Run your prompt in a chat interface (GitHub Copilot for Business or approved tool). Did you get a clear explanation?
-
-**Time:** About 5 minutes.
-
-<details>
-<summary>Example Solution for Exercise 1</summary>
-
-**Example prompt:**
-
-> "Explain what this C# regex pattern does: `@"^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"`. Explain in simple terms and give one example of a string that would match this pattern."
-
-**Why this works:**
-
-- **Clarity**: Task is clear — "Explain"
-- **Context**: Specifies it's a C# regex pattern
-- **Constraints**: "Simple terms" and "give one example"
-
-**Expected output:** Explanation that this is an email validation regex, with an example email address.
-
-</details>
+**Remember:** Use only synthetic examples or generic ASP.NET Core patterns — not proprietary code or internal APIs.
 
 ---
 
-## Exercise 2: Refine a prompt
+## Exercise 1: Diagnose and rewrite
+
+**Individual (5 minutes), then breakout (5 minutes)**
+
+Here are three prompts a junior developer wrote. Each one produced unhelpful output. For each prompt, identify the specific problem and rewrite it.
+
+**Prompt A:**
+> "Write some code"
+
+**Prompt B:**
+> "Explain dependency injection"
+
+**Prompt C:**
+> "Refactor this so it's better"
+
+For each one, write:
+- What's missing (clarity, context, constraints — or more than one)
+- A rewritten version that would produce genuinely useful output for an ASP.NET Core 8 project
+
+**In your breakout room:** Compare rewrites. Where you made different choices — different context, different constraints — decide which version is more useful and why. **One person feeds back: which rewrite did you converge on, and what rule did you use to pick it?**
+
+---
+
+## Exercise 2: Few-shot in practice
+
+**Individual (8 minutes), then whole group**
+
+Your team has a consistent service class style. You want AI to generate a new one that matches it exactly — not the generic pattern it would produce on its own.
 
 **Your task:**
 
-Take this prompt that produced poor output:
+Write a few-shot prompt that:
+- Shows the model one example of your team's style (use the synthetic example below)
+- Asks it to generate a `OrderService` following the same pattern
+- Includes at least one explicit constraint about what the output must or must not do
 
-> "Refactor this code"
-
-**Your job:**
-
-1. Identify what's missing (clarity, context, constraints)
-2. Rewrite the prompt using the 3Cs
-3. Re-run it (if possible) and compare
-
-**Hints:**
-
-- What task? (refactor)
-- What code? (you need to provide it or describe it)
-- What style? (ASP.NET Core 8, C# 12, constructor injection?)
-- What patterns? (LINQ? nullable reference types? ActionResult?)
-
-**Example code to use** (synthetic):
+**Use this as your example service:**
 
 ```csharp
-public List<string> GetNames(List<User> users)
+public class ProductService
 {
-    var names = new List<string>();
-    foreach (var user in users)
+    private readonly IProductRepository _repository;
+
+    public ProductService(IProductRepository _repository)
     {
-        if (user?.Name != null)
-        {
-            names.Add(user.Name);
-        }
+        this._repository = repository;
     }
-    return names;
+
+    public IEnumerable<Product> GetAll() =>
+        _repository.GetAll();
+
+    public Product? FindById(long id) =>
+        _repository.FindById(id);
 }
 ```
 
-**Then:** Share your refined prompt with a partner. Compare approaches.
+**Then:** Run your prompt in GitHub Copilot Chat or an approved tool. Does the output match the example's style — interface-typed repository, expression-bodied methods, nullable return on `Find`? What did it get right, and what did you have to add in a second prompt?
 
-**Time:** About 10 minutes.
-
-<details>
-<summary>Example Solution for Exercise 2</summary>
-
-**Refined prompt:**
-
-> "Refactor this C# method to use modern C# 12 style with LINQ. The method currently uses a for loop and null checks. Use LINQ to filter null users and null names, then map to names. Keep the return type as List<string>. Here's the code:
-> ```csharp
-> public List<string> GetNames(List<User> users)
-> {
->     var names = new List<string>();
->     foreach (var user in users)
->     {
->         if (user?.Name != null)
->         {
->             names.Add(user.Name);
->         }
->     }
->     return names;
-> }
-> ```"
-
-**Why this works:**
-
-- **Clarity**: Task is clear — "Refactor... to use modern C# 12 style with LINQ"
-- **Context**: Provides the code, specifies C# 12
-- **Constraints**: Use LINQ, filter nulls, keep return type
-
-**Expected output:** Refactored method using LINQ, filter, and map.
-
-</details>
+**Type in chat:** one thing the model got right, and one thing it missed or got wrong.
 
 ---
 
-## Exercise 3: Try few-shot prompting
+## Exercise 3: Chain-of-thought for a real decision
+
+**Breakout — 10 minutes**
+
+This exercise is about a prompt that has to be right — not just plausible.
+
+**Scenario:**
+Your team is debating whether to use `IActionResult` or `ActionResult<T>` as the return type for controller endpoints in your new ASP.NET Core 8 API.
 
 **Your task:**
 
-You want to generate a service class that matches your team's style. Use few-shot prompting.
+Write a chain-of-thought prompt that asks the model to reason through this decision before giving a recommendation. The prompt should:
+- State the context (ASP.NET Core 8, new API, OpenAPI documentation is important)
+- Ask for reasoning before a recommendation — not just "which is better"
+- Include at least one constraint about what a good answer looks like (e.g. it should address Swagger/OpenAPI generation, it should consider testability)
 
-**Requirements:**
+**In your breakout room:** Write the prompt together, then run it. Read the output — does the reasoning actually address the constraints you set, or does it give a generic answer that ignores them? If it ignored a constraint, why? What would you add?
 
-1. Provide one example of your team's service style
-2. Ask the model to generate another one following the same pattern
-
-**Example service to use as template:**
-
-```csharp
-public class ProductService {
-    private readonly ProductRepository repository;
-    
-    public ProductService(ProductRepository repository) {
-        this.repository = repository;
-    }
-    
-    public List<Product> GetAll() {
-        return repository.GetAll();
-    }
-    
-    public Product? FindById(long id) {
-        return repository.FindById(id);
-    }
-}
-```
-
-**Your prompt should:**
-
-- Include the example
-- Ask for a similar service for a different entity (e.g. User)
-
-**Hints:**
-
-- Show the example code clearly
-- Ask for "another one" or "similar one"
-- Specify the new entity name
-
-**Then:** Run your prompt. Does the output match the style of your example?
-
-**Time:** About 10 minutes.
-
-<details>
-<summary>Example Solution for Exercise 3</summary>
-
-**Few-shot prompt:**
-
-> "Generate a service class like this:
-> ```csharp
-> public class ProductService {
->     private readonly ProductRepository repository;
->     
->     public ProductService(ProductRepository repository) {
->         this.repository = repository;
->     }
->     
->     public List<Product> GetAll() {
->         return repository.GetAll();
->     }
->     
->     public Product? FindById(long id) {
->         return repository.FindById(id);
->     }
-> }
-> ```
-> Now generate a similar one for User."
-
-**Why this works:**
-
-- Provides one example showing the style
-- Asks for "similar one" — model learns the pattern
-- Specifies the new entity (User)
-
-**Expected output:** UserService with same structure, constructor injection, same method patterns.
-
-</details>
+**Feed back to the room:** the constraint the model ignored, and what you'd do differently.
 
 ---
 
-## Exercise 4: Swap and improve
+## Exercise 4: Swap and critique
+
+**Breakout — 10 minutes**
 
 **Your task:**
 
-1. Write a prompt for one of these tasks:
-   - Explain what an ASP.NET Core attribute does (`[ApiController]`, `[FromBody]`, dependency injection)
-   - Generate a simple Entity Framework Core repository abstraction
-   - Suggest a refactor for a method
+1. Write a prompt for one of these tasks (your choice):
+   - Ask AI to explain what `[FromBody]` does and when to use it versus `[FromQuery]`
+   - Ask AI to generate an Entity Framework Core repository with a `FindByEmail` method
+   - Ask AI to suggest a refactor for a method with more than three responsibilities
 
-2. Exchange prompts with another attendee
+2. Swap prompts with someone in your breakout room. Run their prompt. Then answer:
+   - Does the output actually solve the task they described?
+   - What is the single most important thing missing — clarity, context, or constraints?
+   - Write one specific rewrite of the weakest part of their prompt
 
-3. Run their prompt and suggest one improvement
+3. Share the rewrite with them and discuss whether they agree it improves it.
 
-4. Share feedback
-
-**Hints:**
-
-- Look for missing clarity, context, or constraints
-- Suggest one specific improvement
-- Be constructive
-
-**Then:** Discuss what you learned from the feedback.
-
-**Time:** About 10 minutes.
+**Back in the main room:** Did anyone disagree with the feedback they got? What was the disagreement — about what the prompt needed, or about what good output looks like?
 
 ---
 
-## Final Deliverables
-
-Before moving to Module 3, ensure you have:
-
-- [ ] Written at least one clear, contextual, constrained prompt (Exercise 1)
-- [ ] Refined a prompt iteratively (Exercise 2)
-- [ ] Tried few-shot prompting (Exercise 3)
-- [ ] Received feedback on your prompting (Exercise 4)
-
----
-
-## Extensions (nullable reference types)
+## Extensions
 
 If you finish early or want to go deeper:
 
-1. **Try chain-of-thought**: Write a prompt that asks for step-by-step reasoning for a complex refactoring task.
+1. **Failure modes:** Ask AI the same question three times with slightly different phrasing. How much does the output vary? What does that tell you about how fragile prompt design is?
 
-2. **Compare techniques**: Try the same task with zero-shot, few-shot, and chain-of-thought. Which works best?
+2. **Constraint stress-test:** Take a prompt that worked well and deliberately remove one constraint. Does the output degrade? Which constraint mattered most?
 
-3. **Create a prompt template**: Draft a reusable template with placeholders for clarity, context, and constraints.
-
-4. **Document your learnings**: Write down 2–3 prompting principles you'll use going forward.
+3. **Template for your team:** Write a prompt template your team could reuse for a common task — refactoring, test generation, or controller scaffolding. Focus on the context and constraints that are always true for your codebase, with placeholders for what changes each time.
 
 ---
 
-## Key Learning Points
+## Before you move to Module 3
 
-- **Clarity first**: Start with a clear task
-- **Add context**: Tell the model what it needs to know
-- **Add constraints**: Specify style, patterns, don'ts
-- **Iterate**: Refine based on output
-- **Techniques**: Zero-shot for simple, few-shot for style, chain-of-thought for complex
+Make sure you have:
 
----
+- [ ] Diagnosed at least three weak prompts and rewritten them (Exercise 1)
+- [ ] Written and run a few-shot prompt — and noted what it got wrong (Exercise 2)
+- [ ] Used chain-of-thought for a decision that needed reasoning, not just an answer (Exercise 3)
+- [ ] Given and received specific prompt feedback (Exercise 4)
 
-## After the exercises
-
-- Keep your refined prompts as templates for future use
-- In Module 3 we'll apply these prompting techniques to real .NET/C# development tasks
-- Practice makes perfect — keep iterating and refining
+In Module 3 you'll apply these techniques directly to .NET/C# development tasks — boilerplate, refactoring, and test generation. The 3Cs apply to every prompt. If the output isn't right, you now know how to diagnose it.

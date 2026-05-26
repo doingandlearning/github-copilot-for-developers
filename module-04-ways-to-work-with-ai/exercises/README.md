@@ -1,23 +1,23 @@
 # Module 4 — Exercises
 
-**For delegates.** Work through these individually or in pairs. Exercises are designed to be done in Visual Studio with GitHub Copilot for Business active.
+**For delegates.** These exercises run during the Module 4 session. Your facilitator will manage timing and breakout rooms. Exercises are designed to be done in VS Code or Visual Studio with GitHub Copilot for Business active.
 
 ---
 
 ## Objective
 
-By completing these exercises, you will:
+By the end of these exercises you will be able to:
 
-- Apply all three modes (inline, chat, PRD-driven) to concrete tasks
-- Practise providing better signal to inline completion
-- Use Copilot Chat slash commands on code you recognise
-- Write a spec and use it to generate a multi-layer feature
+- Read inline suggestions critically before accepting them
+- Use `/explain`, `/fix`, and `/tests` and notice what each one misses
+- Generate a multi-layer feature from a spec and identify where the output diverges from your intent
+- Write a spec that someone else could generate from — and that you could use in a real code review
 
 ---
 
-## Exercise 1: Inline — signal and signal quality
+## Exercise 1: Inline — signal and what it changes
 
-**Your task:**
+**Individual (10 minutes)**
 
 Open a new C# file. You're going to generate a simple entity class three times, with increasing signal each time.
 
@@ -30,9 +30,9 @@ public class Task
 {
 ```
 
-Note what Copilot suggests. Accept nothing yet — just observe.
+Don't accept anything yet. Note what's suggested.
 
-**Round 2 — better signal:**
+**Round 2 — named intent:**
 
 Replace the class with this and trigger again:
 
@@ -44,32 +44,31 @@ public class TaskItem
 {
 ```
 
-Note the difference in the suggestion.
-
-**Round 3 — pattern signal:**
-
-Write the first two properties manually, then stop and let Copilot continue:
+**Round 3 — pattern started:**
 
 ```csharp
 public class TaskItem
 {
     public int Id { get; set; }
     public required string Title { get; set; }
-    // stop here and trigger
 ```
 
-**Reflect:**
+Stop there and let Copilot continue.
 
-- Which round produced the most usable output?
-- What does this tell you about when to reach for inline vs. chat?
+**The decision:** Based on what you observed, in which of these situations would you reach for inline rather than Chat?
 
-**Time:** About 10 minutes.
+- Writing a `CreateOrderRequest` DTO with eight fields you already know
+- Writing a service method with a non-obvious null-handling requirement
+- Completing a `switch` statement over a known enum you've already started
+- Writing a repository interface for an entity you haven't defined yet
+
+**Type your answers in chat (use inline / use Chat for each).** Be prepared to defend one you're unsure about.
 
 ---
 
-## Exercise 2: Chat — `/explain`, `/fix`, `/tests`
+## Exercise 2: Chat — what the slash commands catch and miss
 
-**Your task:**
+**Individual (15 minutes), then breakout (5 minutes)**
 
 Use the following service class. Paste it into a new file in your project.
 
@@ -115,14 +114,13 @@ public class TaskService
 
 **Part A — `/explain`:**
 
-Select the entire `GetByOwnerAsync` method. Run `/explain` in Copilot Chat. Read the output.
+Select `GetByOwnerAsync`. Run `/explain`. Read it.
 
-- Does it match what you expected?
-- Is there anything in the explanation that surprises you or that you'd want to verify?
+Is there anything in the explanation that's subtly wrong, or that you'd want to verify? The method filters and sorts — does the explanation correctly describe *when* filtering happens relative to the database call?
 
 **Part B — `/fix`:**
 
-Add this deliberately broken method to the class:
+Add this method to the class:
 
 ```csharp
 public async Task DeleteAsync(int taskId, int requestingUserId)
@@ -133,106 +131,104 @@ public async Task DeleteAsync(int taskId, int requestingUserId)
 }
 ```
 
-Select it and run `/fix`. Note what Copilot identifies. Does it catch:
+Select it and run `/fix`. This method has three problems:
+- No null check on `task`
+- `DateTime.Now` instead of `DateTime.UtcNow`
+- No ownership check — any user can delete any task
 
-- The missing null check on `task`?
-- The use of `DateTime.Now` instead of `DateTime.UtcNow`?
-- The missing ownership check?
+**Does `/fix` catch all three?** Note which ones it flags and which it misses. If it misses one, follow up in Chat with a prompt that surfaces the missing issue.
 
 **Part C — `/tests`:**
 
-Select the entire `TaskService` class. Run `/tests`.
+Select the entire `TaskService` class and run `/tests`. Then check:
 
-Review what's generated:
+- Does it cover the empty-title validation path?
+- Does it cover the title-too-long path?
+- Does it cover filtering by each `Priority` value in `GetByOwnerAsync`?
 
-- Does it cover the validation paths (empty title, title too long)?
-- Does it cover the filter logic in `GetByOwnerAsync`?
-- Are the test names meaningful?
+Follow up: `"Add a test for when GetByOwnerAsync is called with a null filter — what should it return?"`
 
-Follow up in chat: "Add edge case tests for null request, empty OwnerId, and filtering by each Priority value."
-
-**Reflect:**
-
-- How does `/tests` compare to writing tests from scratch?
-- What would you still need to add manually?
-
-**Time:** About 20 minutes.
+**In your breakout room:** Compare what `/fix` caught and missed across your pair. **Agree on this: of the three problems in `DeleteAsync`, which is the most dangerous to miss — and why does it matter whether Copilot catches it or you have to?**
 
 ---
 
-## Exercise 3: PRD-driven — single feature
+## Exercise 3: PRD-driven — generate and find the divergence
 
-**Your task:**
+**Individual (20 minutes), then whole group**
 
-Write a spec for a feature you know well from your own work — something straightforward, one endpoint or one service operation.
+Use the following spec. Your task is to generate the feature in layers — and find at least one place where the output diverges from the spec.
 
-If you can't think of one, use this:
+```markdown
+## Feature: Update task priority
 
-```
-Feature: Update task priority
+**Stack:** ASP.NET Core 8, C# 12, EF Core. Constructor injection throughout.
+Follow the existing error response shape using ProblemDetails.
 
-Endpoint: PATCH /api/tasks/{id}/priority
+**Endpoint:** PATCH /api/tasks/{id}/priority
 
-Request body:
-- Priority (string, one of: Low, Medium, High)
+**Request:** Priority (string — must be one of: Low, Medium, High)
 
-Behaviour:
-- Validate that the priority value is one of the allowed values
-- Check that the task belongs to the requesting user (use OwnerId)
+**Behaviour:**
+- Validate that Priority is one of the allowed values
+- Check the task belongs to the requesting user via OwnerId
 - Update the priority and save
-- Return 200 with the updated task on success
+- Return 200 with the updated TaskDto on success
 - Return 404 if the task is not found
-- Return 403 if the task belongs to a different user
-- Return 400 if the priority value is invalid
+- Return 403 if the task exists but belongs to a different user
+- Return 400 with a field-level error if the priority value is invalid
 
-Stack: ASP.NET Core 8, C# 12, EF Core
+**Acceptance criteria:**
+- [ ] Invalid priority value returns 400 with a descriptive field error
+- [ ] Task not found returns 404
+- [ ] Task owned by another user returns 403 — not 404
+- [ ] Successful update returns 200 with updated TaskDto
 ```
 
-**Step 1:** Paste the spec into Copilot Chat and ask it to generate the request DTO with validation.
+**Step 1:** Paste the spec and ask for the request DTO with validation.
 
-**Step 2:** Using the DTO output as context, ask it to generate the service method.
+**Step 2:** Using the DTO as context, ask for the service method.
 
-**Step 3:** Ask it to generate the controller endpoint.
+**Step 3:** Ask for the controller endpoint.
 
-**Step 4:** Ask it to generate unit tests that cover the acceptance criteria.
+**Step 4:** Ask for unit tests covering the acceptance criteria.
 
-**Reflect:**
+**The question to answer:** Where did the output diverge from the spec? Look specifically for:
+- The 403 vs. 404 distinction — did the service implement it, or collapse it to a single case?
+- The error response shape — does it use `ProblemDetails`, or a custom shape?
+- Naming — is `Priority` spelled and cased consistently across all four layers?
 
-- Was the output consistent across layers (naming, error patterns)?
-- Did the tests actually target the acceptance criteria you wrote?
-- What would you have needed to refine or correct?
-
-**Time:** About 20 minutes.
+**Type in chat:** the single most important divergence you found, and the one-line spec addition that would have prevented it.
 
 ---
 
-## Exercise 4: PRD-driven — write your own spec
+## Exercise 4: Write a spec that could go into production
 
-**Your task:**
+**Breakout — 15 minutes**
 
-Think of a feature from your current or recent work that spans at least two layers (e.g. a controller that calls a service, or a service that calls a repository).
+This is the exercise that produces something you can use next week.
 
-Write a spec for it in either format:
+Think of a feature from your current or recent work that spans at least two layers — a controller calling a service, or a service calling a repository. It doesn't have to be complex. A single endpoint that does one thing well is enough.
 
-**Option A — Markdown spec:**
+Write the spec using either format:
+
+**Option A — markdown spec:**
 
 ```markdown
 ## Feature: [name]
 
-**Stack:** [your stack]
+**Stack:** [your stack and conventions]
 
-**Endpoint / Entry point:** [describe it]
+**Endpoint / entry point:** [describe it]
 
-**Request / Input:** [list the fields and types]
+**Request / input:** [fields, types, constraints]
 
-**Behaviour:** [list what it does, step by step]
+**Behaviour:** [step by step, including error cases]
 
 **Acceptance criteria:**
 - [ ] ...
-- [ ] ...
 ```
 
-**Option B — User story:**
+**Option B — user story:**
 
 ```markdown
 ## User Story: [name]
@@ -243,42 +239,45 @@ Write a spec for it in either format:
 
 **Acceptance criteria:**
 - [ ] ...
-- [ ] ...
 
 **Technical notes:**
 - Stack: ...
 - Patterns to follow: ...
 ```
 
-You do not need to generate the code in this exercise — the goal is to practise writing a spec that is clear enough to generate from.
+**In your breakout room:** Swap specs. Read your partner's spec and answer three questions:
 
-**Then:** Swap specs with a partner. Read their spec. Ask yourself:
+1. Could you implement this from the spec alone, without asking a clarifying question?
+2. Is there any acceptance criterion that isn't testable as written?
+3. Is the 403/404 distinction (or equivalent ownership/authorisation edge case) covered?
 
-- Could you implement this from the spec alone?
-- Is there anything ambiguous about the expected behaviour?
-- Are the acceptance criteria testable?
+Give them one specific rewrite of the weakest acceptance criterion — not general feedback, a rewrite.
 
-Give them one piece of feedback.
-
-**Time:** About 15 minutes.
+**Feed back to the room:** Did your partner find a gap you didn't notice when writing? What kind of gap was it — missing behaviour, untestable criterion, or ambiguous ownership rule?
 
 ---
 
-## Final checklist
+## Extensions
 
-Before moving on, you should have:
+If you finish early or want to go deeper:
 
-- [ ] Observed how inline signal quality affects suggestion quality (Exercise 1)
-- [ ] Used `/explain`, `/fix`, and `/tests` on real code (Exercise 2)
-- [ ] Generated a multi-layer feature from a spec (Exercise 3)
-- [ ] Written a spec that someone else could generate from (Exercise 4)
+1. **Generate your own spec:** Take the spec you wrote in Exercise 4 and generate the feature. Compare the output to what you'd have written manually. Note what you had to refine — and add those refinements back to the spec.
+
+2. **`#file` in practice:** Add a `**Patterns to follow:**` section to your spec that references a real file — `#file:TasksController.cs`. Does the output more closely match your existing codebase conventions?
+
+3. **Format comparison:** Take any spec from today and rewrite it in the format you didn't use. Which format makes acceptance criteria easier to express? Which makes the technical constraints clearer?
+
+4. **Spec as documentation:** Take your finished spec and paste it into a Confluence page or README alongside the code it generated. Is it a useful description of the feature for someone who didn't write it?
 
 ---
 
-## If you finish early
+## Before you finish
 
-**Extension 1:** Take the spec you wrote in Exercise 4 and generate the feature. Compare the output to what you would have written manually. What did you need to correct?
+Make sure you have:
 
-**Extension 2:** Take any spec from today and write it in the format you didn't use. If you used the markdown format, rewrite it as a user story. Notice what's easier to express in each format.
+- [ ] Observed how signal quality affects inline suggestions — and know when to use Chat instead (Exercise 1)
+- [ ] Used `/explain`, `/fix`, and `/tests` and noted what each one missed, not just what it found (Exercise 2)
+- [ ] Generated a feature from a spec and identified at least one divergence — and the spec addition that would have prevented it (Exercise 3)
+- [ ] Written a spec that someone else reviewed — and received one specific rewrite of a weak criterion (Exercise 4)
 
-**Extension 3:** Add a "patterns to follow" section to your spec referencing a real file in your codebase. Use `#file:` in Copilot Chat to bring that file into scope. Does the output more closely match your existing codebase style?
+The spec you wrote in Exercise 4 is the most reusable thing you're leaving with. Keep it. Refine it against the first time you generate from it.
